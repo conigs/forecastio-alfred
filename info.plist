@@ -83,6 +83,28 @@
 				<string></string>
 			</dict>
 		</array>
+		<key>CDD82361-0870-4F81-89C1-BCFC0380CF87</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>D8157589-0F28-48FF-BC3A-35692E638EAE</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>D8157589-0F28-48FF-BC3A-35692E638EAE</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>83F7F452-182C-448D-9B5B-1B154CDE0222</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
 	</dict>
 	<key>createdby</key>
 	<string>Paul Conigliaro</string>
@@ -94,6 +116,39 @@
 	<string>Forecast.io</string>
 	<key>objects</key>
 	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>w u</string>
+				<key>script</key>
+				<string>require_once('workflows.php');
+$w = new Workflows();
+
+$w-&gt;result('default', 'default', 'Location Based', 'Default units from Forecast.io based on your location.', 'icon.png', 'yes');
+$w-&gt;result('us', 'us', 'US Units', 'Always use imperial units.', 'icon.png', 'yes');
+$w-&gt;result('si', 'si', 'Metric Units', 'Always use metric units.', 'icon.png', 'yes');
+$w-&gt;result('uk', 'uk', 'UK Units', 'Use metric units except for wind speed.', 'icon.png', 'yes');
+
+echo $w-&gt;toxml();</string>
+				<key>subtext</key>
+				<string>Set units for Forecast results.</string>
+				<key>title</key>
+				<string>Forecast.io Units</string>
+				<key>type</key>
+				<integer>1</integer>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>3F2D91F3-EBA8-4A2F-999B-6E0BACB29ED1</string>
+		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -140,6 +195,37 @@ echo $w-&gt;toxml();</string>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>08946CC7-35C3-4140-83A4-1197E1C59857</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>w l</string>
+				<key>script</key>
+				<string>require_once('workflows.php');
+$w = new Workflows();
+
+$w-&gt;result('set', '{query}', 'Set Forecast location', 'Paste your latitude and longitude (Enter \'clear\' to determine location automatically.)', 'icon.png', 'yes');
+$w-&gt;result('find', 'http://stevemorse.org/jcal/latlon.php', 'Find a location', 'Get latitude and longitude for an addresss.', 'icon.png', 'yes');
+
+echo $w-&gt;toxml();</string>
+				<key>subtext</key>
+				<string>Set location for Forecast results.</string>
+				<key>title</key>
+				<string>Forecast.io Location</string>
+				<key>type</key>
+				<integer>1</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>CDD82361-0870-4F81-89C1-BCFC0380CF87</string>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -282,6 +368,40 @@ echo $w-&gt;toxml();</string>
 				<string>require_once('workflows.php');
 $w = new Workflows();
 
+if (preg_match('|^https?://|', '{query}')) {
+	$status = "Opened web site in browser.";
+	exec('open {query}');
+} else {
+    if ('{query}' == 'clear') {
+		$w-&gt;set( 'location', '', 'settings.plist' );
+		$status = "Location cleared.";
+    } else if (preg_match('/(-?\d+\.\d+)[\s,](-?\d+\.\d+)/', '{query}', $loc)) {
+		$location = round($loc[1], 4) . ',' . round($loc[2], 4);
+		$w-&gt;set( 'location', $location, 'settings.plist' );
+		$status = "Location set to $location.";
+	} else {
+		$status = "Latitude and longitude don't look right. Double-check and try again. {query}";
+	}
+}
+
+echo $status;</string>
+				<key>type</key>
+				<integer>1</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>D8157589-0F28-48FF-BC3A-35692E638EAE</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string>require_once('workflows.php');
+$w = new Workflows();
+
 $w-&gt;set( 'units', '{query}', 'settings.plist' );
 $status = "Weather units set to {query}.";
 
@@ -294,39 +414,6 @@ echo $status;
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
 			<string>A2AF6EEE-551C-4552-AA61-23B995261D42</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>argumenttype</key>
-				<integer>2</integer>
-				<key>escaping</key>
-				<integer>63</integer>
-				<key>keyword</key>
-				<string>w u</string>
-				<key>script</key>
-				<string>require_once('workflows.php');
-$w = new Workflows();
-
-$w-&gt;result('default', 'default', 'Location Based', 'Default units from Forecast.io based on your location.', 'icon.png', 'yes');
-$w-&gt;result('us', 'us', 'US Units', 'Always use imperial units.', 'icon.png', 'yes');
-$w-&gt;result('si', 'si', 'Metric Units', 'Always use metric units.', 'icon.png', 'yes');
-$w-&gt;result('uk', 'uk', 'UK Units', 'Use metric units except for wind speed.', 'icon.png', 'yes');
-
-echo $w-&gt;toxml();</string>
-				<key>subtext</key>
-				<string>Set units for Forecast results.</string>
-				<key>title</key>
-				<string>Forecast.io Units</string>
-				<key>type</key>
-				<integer>1</integer>
-				<key>withspace</key>
-				<false/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.input.scriptfilter</string>
-			<key>uid</key>
-			<string>3F2D91F3-EBA8-4A2F-999B-6E0BACB29ED1</string>
 		</dict>
 	</array>
 	<key>readme</key>
@@ -384,6 +471,16 @@ http://forecast.io</string>
 		<dict>
 			<key>ypos</key>
 			<real>150</real>
+		</dict>
+		<key>CDD82361-0870-4F81-89C1-BCFC0380CF87</key>
+		<dict>
+			<key>ypos</key>
+			<real>490</real>
+		</dict>
+		<key>D8157589-0F28-48FF-BC3A-35692E638EAE</key>
+		<dict>
+			<key>ypos</key>
+			<real>490</real>
 		</dict>
 	</dict>
 	<key>webaddress</key>

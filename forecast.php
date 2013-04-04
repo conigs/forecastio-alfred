@@ -16,6 +16,8 @@ function get_data($url) {
 // Get api key and theme from settings file
 $key = $w->get( 'api.key', 'settings.plist' );
 $theme = $w->get('theme', 'settings.plist');
+$unit_code = $w->get( 'units', 'settings.plist' );
+$location = $w->get('location', 'settings.plist');
 
 // Check api key, die if malformed or missing
 if (preg_match('/[0-9a-f]{32}/',$key) != 1) {
@@ -28,10 +30,16 @@ if (preg_match('/[0-9a-f]{32}/',$key) != 1) {
 // Set path to theme icons
 $icon_path = 'icons/'.$theme.'/';
 
-// Get location data from IP address
-$ip = get_data('http://ipecho.net/plain');
-$r  = get_data('http://freegeoip.net/json/'.$ip);
-$l = json_decode($r);
+if (!$location) {
+	// Get location data from IP address
+	$ip = get_data('http://ipecho.net/plain');
+	$r  = get_data('http://freegeoip.net/json/'.$ip);
+	$l = json_decode($r);
+} else {
+    $loc = explode(',', $location, 2);
+    $l->latitude = $loc[0];
+    $l->longitude = $loc[1];
+}
 
 // Die if unable to determine location
 if (!is_object($l)) {
@@ -41,8 +49,12 @@ if (!is_object($l)) {
 	die ($error . print_r($l, 1));
 }
 
-// Set units based on country code from freegeoip
-$units = $l->country_code == 'US' || $l->country_code == 'UK' ? strtolower($l->country_code) : 'si';
+if ($unit_code == 'us' || $unit_code == 'uk' || $unit_code == 'si') {
+	$units = $unit_code;
+} else {
+	// Set units based on country code from freegeoip if set to default
+	$units = $l->country_code == 'US' || $l->country_code == 'UK' ? strtolower($l->country_code) : 'si';
+}
 
 // Call API URL
 $url = "https://api.forecast.io/forecast/{$key}/{$l->latitude},{$l->longitude}?units={$units}";
